@@ -10,7 +10,7 @@
 -author("Dydrey").
 
 %% API
--export([progra/2,generar/3,valorar/2,seleccionar/2,mutar/1]).
+-export([progra/2,generar/3,valorar/3,seleccionar/2,mutar/1,quitar_v/2]).
 %([[a,b],[b,c],[a,d],[c,d]],2,10).
 %Funcion que recibe un grafo y cantidad de colores y devuelve una lista con tuplas de nodo y color
 %G = Grafo, N = Cantidad de colores
@@ -39,9 +39,10 @@ generaAux(G,C,T,L)when T-length(L)<0 -> NL=lists:droplast(L), generaAux(G,C,T,NL
 conver([]) -> [];
 conver([H|T]) -> [H | [X || X <- conver(T), X /= lists:reverse(H)]].
 
-%Funcion que se encarga de valorar una solucion
-%G = Grafo, S = Posible Solucion
-valorar(G,S)-> {S,valorar1(G,S)}.
+%Funcion que se encarga de valorar las soluciones
+%G = Grafo, S = lista de Posible Soluciones, L = Nueva lista
+valorar(_G,[],L) -> L;
+valorar(G,[H|T],L)-> valorar(G,T,L ++ [{H,valorar1(G,H)}]).
 %Funcion auxiliar de valorar
 valorar1([],_S) -> 0;
 valorar1([[H1,H2]|T],S)-> valorar2(conver([[H1,H2]|T]),S,buscolor(H1,S),buscolor(H2,S)).
@@ -76,3 +77,10 @@ pos_el(E,[_H|T]) -> 1+ pos_el(E,T).
 inter_c(L,Index,N_Valor) ->
   {L1,[_|L2]} = lists:split(Index-1,L),
   L1++[N_Valor|L2].
+
+%Funcion que quita los el valor de las mejores soluciones
+%[{H1,_H2}|T] = Lista con las mejores soluciones y su valor, L = Nueva lista
+
+quitar_v([],L)-> L;
+quitar_v([{H1,_H2}|T],L) -> quitar_v(T,L++[H1]).
+
