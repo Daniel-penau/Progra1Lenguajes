@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="b45daf76-0f83-4f90-bd83-56a2a8e0aaca" name="Default Changelist" comment="" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="CompilerWorkspaceConfiguration">
+    <option name="CLEAR_OUTPUT_DIRECTORY" value="false" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Erlang Module" />
+      </list>
+    </option>
+  </component>
+  <component name="ProjectId" id="1cN7QVoK35yxZTzWCnmwi8Sc9rp" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showExcludedFiles" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="aspect.path.notification.shown" value="true" />
+    <property name="project.structure.last.edited" value="Modules" />
+    <property name="project.structure.proportion" value="0.0" />
+    <property name="project.structure.side.proportion" value="0.0" />
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="b45daf76-0f83-4f90-bd83-56a2a8e0aaca" name="Default Changelist" comment="" />
+      <created>1590357180310</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1590357180310</updated>
+      <workItem from="1590357185826" duration="14471000" />
+      <workItem from="1590427073512" duration="1587000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="1" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="233" y="0" width="814" height="720" key="#Intentions" timestamp="1590357316793">
+      <screen x="0" y="0" width="1280" height="720" />
+    </state>
+    <state x="233" y="0" width="814" height="720" key="#Intentions/0.0.1280.720@0.0.1280.720" timestamp="1590357316793" />
+    <state x="233" y="19" key="#Project_Structure" timestamp="1590357193919">
+      <screen x="0" y="0" width="1280" height="720" />
+    </state>
+    <state x="233" y="19" key="#Project_Structure/0.0.1280.720@0.0.1280.720" timestamp="1590357193919" />
+    <state x="490" y="250" key="#com.intellij.ide.util.projectWizard.JdkChooserPanel.MyDialog" timestamp="1590372808134">
+      <screen x="0" y="0" width="1280" height="720" />
+    </state>
+    <state x="490" y="250" key="#com.intellij.ide.util.projectWizard.JdkChooserPanel.MyDialog/0.0.1280.720/0.-1080.1536.864@0.0.1280.720" timestamp="1590372808134" />
+    <state x="490" y="250" key="#com.intellij.ide.util.projectWizard.JdkChooserPanel.MyDialog/0.0.1280.720/1920.0.1920.1080@0.0.1280.720" timestamp="1590358951907" />
+    <state x="490" y="250" key="#com.intellij.ide.util.projectWizard.JdkChooserPanel.MyDialog/0.0.1280.720@0.0.1280.720" timestamp="1590357327372" />
+    <state x="221" y="16" key="#com.intellij.openapi.projectRoots.ui.ProjectJdksEditor" timestamp="1590372806957">
+      <screen x="0" y="0" width="1280" height="720" />
+    </state>
+    <state x="221" y="16" key="#com.intellij.openapi.projectRoots.ui.ProjectJdksEditor/0.0.1280.720/0.-1080.1536.864@0.0.1280.720" timestamp="1590372806957" />
+    <state x="337" y="185" key="com.intellij.ide.util.TipDialog" timestamp="1590427204507">
+      <screen x="0" y="0" width="1280" height="720" />
+    </state>
+    <state x="337" y="185" key="com.intellij.ide.util.TipDialog/0.0.1280.720/0.-1080.1536.864@0.0.1280.720" timestamp="1590427204507" />
+  </component>
+</project>
