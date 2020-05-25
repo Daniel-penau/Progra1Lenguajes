@@ -10,7 +10,7 @@
 -author("Dydrey").
 
 %% API
--export([progra/2,generar/3]).
+-export([progra/2,generar/3,valorar/2,seleccionar/2,mutar/1]).
 %([[a,b],[b,c],[a,d],[c,d]],2,10).
 %Funcion que recibe un grafo y cantidad de colores y devuelve una lista con tuplas de nodo y color
 %G = Grafo, N = Cantidad de colores
@@ -34,3 +34,45 @@ generar(G,C,T)->L=progra(G,C), generaAux(G,C,T,L).
 generaAux(_G,_C,0,_L)->[];
 generaAux(G,C,T,L)when T-length(L)>=0 ->NL=progra(G,C), NT=T-length(L), L++generaAux(G,C,NT,NL);
 generaAux(G,C,T,L)when T-length(L)<0 -> NL=lists:droplast(L), generaAux(G,C,T,NL).
+
+%Funcion auxiliar de valorar, Convierte el G en un grafo dirigido
+conver([]) -> [];
+conver([H|T]) -> [H | [X || X <- conver(T), X /= lists:reverse(H)]].
+
+%Funcion que se encarga de valorar una solucion
+%G = Grafo, S = Posible Solucion
+valorar(G,S)-> {S,valorar1(G,S)}.
+%Funcion auxiliar de valorar
+valorar1([],_S) -> 0;
+valorar1([[H1,H2]|T],S)-> valorar2(conver([[H1,H2]|T]),S,buscolor(H1,S),buscolor(H2,S)).
+%Funcion auxiliar de valorar1
+valorar2([_H|T],S,Color1,Color2)when Color1 == Color2 -> 1+valorar1(T,S);
+valorar2([_H|T],S,Color1,Color2)when Color1 /= Color2  -> valorar1(T,S).
+
+%Funcion que se encarga de buscar el color de un nodo
+% N = Nodo, [] = Posible solucion
+buscolor(_N,[]) -> 0;
+buscolor(N,[{N, Color}| _T]) -> Color;
+buscolor(N, [_H| T]) -> buscolor(N, T).
+
+%Funcion que se encarga de Seleccionar las T mejores Soluciones
+seleccionar(S,T)-> element(1,lists:split(T,lists:keysort(2,S))).
+
+%Funcion que se encarga de mutar una solucion
+%S = una posible solucion
+mutar(S)-> mutar1(S,lists:nth(rand:uniform(length(S)), S),lists:nth(rand:uniform(length(S)), S)).
+%Funcion auxiliar de mutar
+mutar1(S,{H1,T1},{H2,T2})when {H1,T1}/= {H2,T2} ->inter_c( inter_c(S,pos_el({H1,T1},S)+1,{H1,T2}),
+  pos_el({H2,T2},S)+1,{H2,T1});
+mutar1(S,{H1,T1},{H2,T2})when {H1,T1} == {H2,T2} -> mutar(S).
+
+%Funcion que me devuelve la posicion de un elemento en una lista
+% E = elemento, [E|_T] = Lista
+pos_el(E,[E|_T]) -> 0;
+pos_el(E,[_H|T]) -> 1+ pos_el(E,T).
+
+%Funcion que intercambia valores en una lista
+%L =Lista, Index = posicion del elemento a intercambiar, N_Valor = Nuevo elemento
+inter_c(L,Index,N_Valor) ->
+  {L1,[_|L2]} = lists:split(Index-1,L),
+  L1++[N_Valor|L2].
