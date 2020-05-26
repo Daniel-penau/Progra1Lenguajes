@@ -10,7 +10,7 @@
 -author("Dydrey").
 
 %% API
--export([progra/2,generar/3,valorar/3,seleccionar/2,mutar/1,quitar_v/2]).
+-export([progra/2, generar/3, valorar/3, seleccionar/2, mutar/1, quitar_v/2]).
 %([[a,b],[b,c],[a,d],[c,d]],2,10).
 %Funcion que recibe un grafo y cantidad de colores y devuelve una lista con tuplas de nodo y color
 %G = Grafo, N = Cantidad de colores
@@ -83,4 +83,20 @@ inter_c(L,Index,N_Valor) ->
 
 quitar_v([],L)-> L;
 quitar_v([{H1,_H2}|T],L) -> quitar_v(T,L++[H1]).
+
+%Verifica si la solucion tiene cero colisiones
+mejor_s({S,V}) when V == 0 -> true.
+
+%Funcion para generar los hilos
+
+generaHilos(Server,G,P,Cant)->spawn( fun()-> Server ! algo_gene(G,P) end ),
+  generaHilos(Server,G,P,Cant-1).
+
+%G = Grafo, P = Poblacion, S = mejor Solucion, T = # de Poblacion_I
+%R = 10000 de Repeticiones, B = bandera de Mejor solucion
+
+%prin(G,P,S,T,R,B)when R == 0 -> S;
+%prin(G,P,S,T,R,B)when B == true -> S.
+
+
 
