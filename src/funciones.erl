@@ -10,7 +10,7 @@
 -author("Dydrey").
 
 %% API
--export([progra/2, generar/3, valorar/3, seleccionar/2, mutar/1, quitar_v/2]).
+-export([progra/2, generar/3, valorar/3, seleccionar/2, mutar/1, quitar_v/2, cruzar/2]).
 %([[a,b],[b,c],[a,d],[c,d]],2,10).
 %Funcion que recibe un grafo y cantidad de colores y devuelve una lista con tuplas de nodo y color
 %G = Grafo, N = Cantidad de colores
@@ -66,6 +66,15 @@ mutar(S)-> mutar1(S,lists:nth(rand:uniform(length(S)), S),lists:nth(rand:uniform
 mutar1(S,{H1,T1},{H2,T2})when {H1,T1}/= {H2,T2} ->inter_c( inter_c(S,pos_el({H1,T1},S)+1,{H1,T2}),
   pos_el({H2,T2},S)+1,{H2,T1});
 mutar1(S,{H1,T1},{H2,T2})when {H1,T1} == {H2,T2} -> mutar(S).
+
+%Funcion que recibe 1 listas y las cruza para crear una lista nueva.
+cruzar([],[])->[];
+cruzar([[]],[[]])->[];
+cruzar([H1|T1],[H2|T2])->[lists:nth(rand:uniform(2), [H1] ++ [H2])] ++ cruzar(T1,T2).
+
+algGenetico([])->[];
+algGenetico([[]])->[];
+algGenetico(L)-> mutar(cruzar(lists:nth(rand:uniform(length(L)), L), lists:nth(rand:uniform(length(L)), L))).
 
 %Funcion que me devuelve la posicion de un elemento en una lista
 % E = elemento, [E|_T] = Lista
