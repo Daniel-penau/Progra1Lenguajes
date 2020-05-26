@@ -10,7 +10,8 @@
 -author("Dydrey").
 
 %% API
--export([progra/2,generar/3,valorar/3,seleccionar/2,mutar/1,quitar_v/2,servidor/1,generarHilos/5]).
+-export([progra/2,generar/3,valorar/3,seleccionar/2,mutar/1,quitar_v/2,server/1,generarHilos/5,cruzar/2, algGenetico/1, mejor_s/1,print/1]).
+
 %([[a,b],[b,c],[a,d],[c,d]],2,10).
 %Funcion que recibe un grafo y cantidad de colores y devuelve una lista con tuplas de nodo y color
 %G = Grafo, N = Cantidad de colores
@@ -43,9 +44,11 @@ conver([H|T]) -> [H | [X || X <- conver(T), X /= lists:reverse(H)]].
 %G = Grafo, S = lista de Posible Soluciones, L = Nueva lista
 valorar(_G,[],L) -> L;
 valorar(G,[H|T],L)-> valorar(G,T,L ++ [{H,valorar1(G,H)}]).
+
 %Funcion auxiliar de valorar
 valorar1([],_S) -> 0;
 valorar1([[H1,H2]|T],S)-> valorar2(conver([[H1,H2]|T]),S,buscolor(H1,S),buscolor(H2,S)).
+
 %Funcion auxiliar de valorar1
 valorar2([_H|T],S,Color1,Color2)when Color1 == Color2 -> 1+valorar1(T,S);
 valorar2([_H|T],S,Color1,Color2)when Color1 /= Color2  -> valorar1(T,S).
@@ -62,10 +65,20 @@ seleccionar(S,T)-> element(1,lists:split(T,lists:keysort(2,S))).
 %Funcion que se encarga de mutar una solucion
 %S = una posible solucion
 mutar(S)-> mutar1(S,lists:nth(rand:uniform(length(S)), S),lists:nth(rand:uniform(length(S)), S)).
+
 %Funcion auxiliar de mutar
 mutar1(S,{H1,T1},{H2,T2})when {H1,T1}/= {H2,T2} ->inter_c( inter_c(S,pos_el({H1,T1},S)+1,{H1,T2}),
   pos_el({H2,T2},S)+1,{H2,T1});
 mutar1(S,{H1,T1},{H2,T2})when {H1,T1} == {H2,T2} -> mutar(S).
+
+%Funcion que recibe 1 listas y las cruza para crear una lista nueva.
+cruzar([],[])->[];
+cruzar([[]],[[]])->[];
+cruzar([H1|T1],[H2|T2])->[lists:nth(rand:uniform(2), [H1] ++ [H2])] ++ cruzar(T1,T2).
+
+algGenetico([])->[];
+algGenetico([[]])->[];
+algGenetico(L)-> mutar(cruzar(lists:nth(rand:uniform(length(L)), L), lists:nth(rand:uniform(length(L)), L))).
 
 %Funcion que me devuelve la posicion de un elemento en una lista
 % E = elemento, [E|_T] = Lista
@@ -80,18 +93,18 @@ inter_c(L,Index,N_Valor) ->
 
 %Funcion que quita los el valor de las mejores soluciones
 %[{H1,_H2}|T] = Lista con las mejores soluciones y su valor, L = Nueva lista
-
 quitar_v([],L)-> L;
 quitar_v([{H1,_H2}|T],L) -> quitar_v(T,L++[H1]).
 
-servidor({G,L,S,T})->
+print(K)->io:format("La lista es ~p~n",[K]).
+
+server({G,L,S,T}) ->
   receive
-    {G,NL,S,T}-> servidor({G,L++[NL],S,T});
-    limpiar -> servidor({G,[],S,T});
-    estado when length(L)==0 -> io:format("La lista esta vacia ~n"), servidor(L);
-    estado when length(L)>=1 -> io:format("Hay elementos en la lista ~p~n", [L]), servidor(L);
-    kill -> io:format("Finalizacion del servidor ~n");
-    NL-> servidor(L++[NL])
+    {G,L1,S} -> server({G,L++[L1],S,T});
+    list -> print(L), server({G,L,S,T});
+    limp -> server({G,[],S,T});
+    poblacion -> print(funciones:quitar_v(funciones:seleccionar(funciones:valorar(G,L,[]),T),[])),server({G,[],S,T});
+    kill -> io:format("Servidor finalizado,Mejor solucion = ~p ~n",[S])
   end.
 %%%%%%%%%%%%%%%%%%%%%%%%
 %Genera los hilos y los envia al servidor
@@ -100,7 +113,19 @@ generarHilos(Server,G,C,T,1) -> spawn(fun() -> Server ! generar(G, C, T) end);
 generarHilos(Server,G,C,T,H) -> spawn(fun() -> Server ! generar(G, C, T) end),
   generarHilos(Server,G,C,T,H-1).
 
+%Verifica si la solucion tiene cero colisiones
+mejor_s({_S,V}) when V == 0 -> true.
+
+
+%G = Grafo, P = Poblacion, S = mejor Solucion, T = # de Poblacion_I
+%R = 10000 de Repeticiones, B = bandera de Mejor solucion
+
+%prin(G,P,S,T,R,B)when R == 0 -> S;
+%prin(G,P,S,T,R,B)when B == true -> S.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Grafo = [[a,b],[b,c],[a,d],[c,d]]
 %Lista = [{a,2},{b,2},{c,3},{d,4},{a,4},{b,3},{c,3},{d,3},{a,2}]
-%SERVIDOR = spawn(fun()-> funciones:servidor([]) end).
+%SERVIDOR = spawn(fun()-> funciones:server({[[a,b],[b,c],[a,d],[c,d]],[[{a,1},{b,2},{c,1},{d,2}],[{a,1},{b,1},{c,2},{d,1}]],[],2}) end).
 %funciones:generarHilos(SERVIDOR, [[a,b],[b,c],[a,d],[c,d]], 4, 9, 3).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
