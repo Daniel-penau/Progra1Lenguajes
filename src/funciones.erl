@@ -10,7 +10,7 @@
 -author("Dydrey").
 
 %% API
--export([progra/2,generar/3,valorar/3,seleccionar/2,mutar/1,quitar_v/2]).
+-export([progra/2,generar/3,valorar/3,seleccionar/2,mutar/1,quitar_v/2,servidor/1,generarHilos/5]).
 %([[a,b],[b,c],[a,d],[c,d]],2,10).
 %Funcion que recibe un grafo y cantidad de colores y devuelve una lista con tuplas de nodo y color
 %G = Grafo, N = Cantidad de colores
@@ -32,8 +32,8 @@ generar(G,C,T)->L=progra(G,C), generaAux(G,C,T,L).
 
 %Funcion auxiliar de generar
 generaAux(_G,_C,0,_L)->[];
-generaAux(G,C,T,L)when T-length(L)>=0 ->NL=progra(G,C), NT=T-length(L), L++generaAux(G,C,NT,NL);
-generaAux(G,C,T,L)when T-length(L)<0 -> NL=lists:droplast(L), generaAux(G,C,T,NL).
+generaAux(G,C,T,L)when T>=0 ->NL=progra(G,C), NT=T-1, [L]++generaAux(G,C,NT,NL);
+generaAux(G,C,T,L)when T<0 -> NL=lists:droplast(L), generaAux(G,C,T,[NL]).
 
 %Funcion auxiliar de valorar, Convierte el G en un grafo dirigido
 conver([]) -> [];
@@ -84,3 +84,23 @@ inter_c(L,Index,N_Valor) ->
 quitar_v([],L)-> L;
 quitar_v([{H1,_H2}|T],L) -> quitar_v(T,L++[H1]).
 
+servidor({G,L,S,T})->
+  receive
+    {G,NL,S,T}-> servidor({G,L++[NL],S,T});
+    limpiar -> servidor({G,[],S,T});
+    estado when length(L)==0 -> io:format("La lista esta vacia ~n"), servidor(L);
+    estado when length(L)>=1 -> io:format("Hay elementos en la lista ~p~n", [L]), servidor(L);
+    kill -> io:format("Finalizacion del servidor ~n");
+    NL-> servidor(L++[NL])
+  end.
+%%%%%%%%%%%%%%%%%%%%%%%%
+%Genera los hilos y los envia al servidor
+%Server=Nombre del servidor  G=Grafo  C=Cantidad de colores  T=Tamano de poblacion  H=Cantidad de hilos
+generarHilos(Server,G,C,T,1) -> spawn(fun() -> Server ! generar(G, C, T) end);
+generarHilos(Server,G,C,T,H) -> spawn(fun() -> Server ! generar(G, C, T) end),
+  generarHilos(Server,G,C,T,H-1).
+
+%Grafo = [[a,b],[b,c],[a,d],[c,d]]
+%Lista = [{a,2},{b,2},{c,3},{d,4},{a,4},{b,3},{c,3},{d,3},{a,2}]
+%SERVIDOR = spawn(fun()-> funciones:servidor([]) end).
+%funciones:generarHilos(SERVIDOR, [[a,b],[b,c],[a,d],[c,d]], 4, 9, 3).
