@@ -4,7 +4,7 @@
 
 %% API
 -export([progra/2, generar/3, valorar/3, seleccionar/2, mutar/1, quitar_v/2, server/1, generarHilos/5, cruzar/2,
-  mejor_s/1, print/1, algGenetico/3, solu/2, consultaP/1, consultaS/1]).
+  mejor_s/1, print/1, algGenetico/3, solu/2, consultaP/1, consultaS/1, start/2]).
 
 %([[a,b],[b,c],[a,d],[c,d]],2,10).
 %Funcion que recibe un grafo y cantidad de colores y devuelve una lista con tuplas de nodo y color
@@ -102,7 +102,7 @@ solu({_N1,V1},{N2,V2})when V1 > V2 -> {N2,V2}.
 print(K)->io:format("La lista es ~p~n",[K]).
 
 
-%start(Name,G,T)-> Name = spawn(fun()-> funciones:server({G,[],[],T}) end).
+start(G,T)-> spawn(fun()-> funciones:server({G,[],[],T}) end).
 
 %funciones:generarHilos(SERVIDOR, [[a,b],[b,c],[a,d],[c,d]],funciones:generar([[a,b],[b,c],[a,d],[c,d]],2,4),4,12).
 %SERVIDOR = spawn(fun()-> funciones:server({[[a,b],[b,c],[a,d],[c,d]],[],[],4}) end).
