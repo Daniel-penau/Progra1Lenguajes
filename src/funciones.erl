@@ -1,16 +1,10 @@
 %%%-------------------------------------------------------------------
-%%% @author Dydrey
-%%% @copyright (C) 2020, <COMPANY>
-%%% @doc
-%%%
-%%% @end
-%%% Created : 24. may. 2020 15:54
-%%%-------------------------------------------------------------------
 -module(funciones).
--author("Dydrey").
+
 
 %% API
--export([progra/2,generar/3,valorar/3,seleccionar/2,mutar/1,quitar_v/2,server/1,generarHilos/5,cruzar/2, algGenetico/1, mejor_s/1,print/1]).
+-export([progra/2, generar/3, valorar/3, seleccionar/2, mutar/1, quitar_v/2, server/1, generarHilos/5, cruzar/2,
+  mejor_s/1, print/1, algGenetico/3, solu/2]).
 
 %([[a,b],[b,c],[a,d],[c,d]],2,10).
 %Funcion que recibe un grafo y cantidad de colores y devuelve una lista con tuplas de nodo y color
@@ -76,9 +70,14 @@ cruzar([],[])->[];
 cruzar([[]],[[]])->[];
 cruzar([H1|T1],[H2|T2])->[lists:nth(rand:uniform(2), [H1] ++ [H2])] ++ cruzar(T1,T2).
 
-algGenetico([])->[];
-algGenetico([[]])->[];
-algGenetico(L)-> mutar(cruzar(lists:nth(rand:uniform(length(L)), L), lists:nth(rand:uniform(length(L)), L))).
+algGenetico([],_Cont,A)-> A;
+algGenetico(_L, 0, A)-> A;
+algGenetico(L, Cont, A)-> algGenetico(L,Cont-1,A ++ algGenetico1(L, rand:uniform(100))).
+
+algGenetico1(L, R) when R =< 5 -> [mutar(cruzar(lists:nth(rand:uniform(length(L)), L),
+                                              lists:nth(rand:uniform(length(L)), L)))];
+algGenetico1(L, R) when R > 5 -> [cruzar(lists:nth(rand:uniform(length(L)), L),
+                                              lists:nth(rand:uniform(length(L)), L))].
 
 %Funcion que me devuelve la posicion de un elemento en una lista
 % E = elemento, [E|_T] = Lista
@@ -96,22 +95,35 @@ inter_c(L,Index,N_Valor) ->
 quitar_v([],L)-> L;
 quitar_v([{H1,_H2}|T],L) -> quitar_v(T,L++[H1]).
 
+solu([],{N2,V2})-> {N2,V2};
+solu({N1,V1},{_N2,V2})when V1 =< V2 -> {N1,V1};
+solu({_N1,V1},{N2,V2})when V1 > V2 -> {N2,V2}.
+
 print(K)->io:format("La lista es ~p~n",[K]).
+
+%SERVIDOR = spawn(fun()-> funciones:server({[[a,b],[b,c],[a,d],[c,d]],[[{a,1},{b,2},{c,1},{d,2}],[{a,1},{b,1},{c,2},{d,1}]],[],2}) end).
+
+start(Name,G,T)-> Name = spawn(fun()-> funciones:server({G,[],[],T}) end).
+
 
 server({G,L,S,T}) ->
   receive
     {G,L1,S,T} -> server({G,L++L1,S,T});
     list -> print(L), server({G,L,S,T});
     limp -> server({G,[],S,T});
+    sol -> S;
+    cam_sol -> New_sol = solu(S,lists:nth(1,funciones:seleccionar(funciones:valorar(G,L,[]),T),[])),server({G,L,New_sol,T});
     poblacion -> print(funciones:quitar_v(funciones:seleccionar(funciones:valorar(G,L,[]),T),[])),server({G,[],S,T});
     kill -> io:format("Servidor finalizado,Mejor solucion = ~p ~n",[S])
   end.
 %%%%%%%%%%%%%%%%%%%%%%%%
 %Genera los hilos y los envia al servidor
-%Server=Nombre del servidor  G=Grafo  C=Cantidad de colores  T=Tamano de poblacion  H=Cantidad de hilos
-generarHilos(Server,G,C,T,1) -> spawn(fun() -> Server ! {G, generar(G, C, T), [], 2} end);
-generarHilos(Server,G,C,T,H) -> spawn(fun() -> Server ! {G, generar(G, C, T), [], 2} end),
-  generarHilos(Server,G,C,T,H-1).
+%Server=Nombre del servidor  G=Grafo  T=Tamano de poblacion  H=Cantidad de hilos
+% L = Poblacion Inicial, 200 = Generaciones,
+generarHilos(Server,G,L,T,H) -> spawn(fun() -> Server ! {G, algGenetico(L, 200, []), [],T} end),
+  generarHilos(Server,G,L,T,H-1).
+
+
 
 %Verifica si la solucion tiene cero colisiones
 mejor_s({_S,V}) when V == 0 -> true.
