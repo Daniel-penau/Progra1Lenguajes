@@ -4,7 +4,7 @@
 
 %% API
 -export([progra/2, generar/3, valorar/3, seleccionar/2, mutar/1, quitar_v/2, server/1, generarHilos/5, cruzar/2,
-  mejor_s/1, print/1, algGenetico/3, solu/2]).
+  mejor_s/1, print/1, algGenetico/3, solu/2, consultaP/1, consultaS/1]).
 
 %([[a,b],[b,c],[a,d],[c,d]],2,10).
 %Funcion que recibe un grafo y cantidad de colores y devuelve una lista con tuplas de nodo y color
@@ -112,9 +112,10 @@ server({G,L,S,T}) ->
     {G,L1,S,T} -> server({G,L++L1,S,T});
     list -> print(L), server({G,L,S,T});
     limp -> server({G,[],S,T});
-    sol -> print(S);
+    {sol, Server} -> Server ! S;
     cam_sol -> New_sol = solu(S,lists:nth(1,funciones:seleccionar(funciones:valorar(G,L,[]),T))),server({G,L,New_sol,T});
-    poblacion -> print(NL=funciones:quitar_v(funciones:seleccionar(funciones:valorar(G,L,[]),T),[])),server({G,NL,S,T});
+    {poblacion,Server} -> Server ! NL=funciones:quitar_v(funciones:seleccionar(funciones:valorar(G,L,[]),T),[]),
+                                                                                                    server({G,NL,S,T});
     kill -> io:format("Servidor finalizado,Mejor solucion = ~p ~n",[S])
   end.
 %%%%%%%%%%%%%%%%%%%%%%%%
@@ -124,6 +125,16 @@ server({G,L,S,T}) ->
 generarHilos(Server,G,L,T,1) -> spawn(fun() -> Server ! {G, algGenetico(L, 200, []), [],T} end);
 generarHilos(Server,G,L,T,H) -> spawn(fun() -> Server ! {G, algGenetico(L, 200, []), [],T} end),
   generarHilos(Server,G,L,T,H-1).
+
+consultaP(Server)-> Server ! {poblacion, self()},
+  receive
+    R -> R
+  end.
+
+consultaS(Server)-> Server ! {sol, self()},
+  receive
+    S -> S
+  end.
 
 
 
