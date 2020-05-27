@@ -101,25 +101,27 @@ solu({_N1,V1},{N2,V2})when V1 > V2 -> {N2,V2}.
 
 print(K)->io:format("La lista es ~p~n",[K]).
 
-%SERVIDOR = spawn(fun()-> funciones:server({[[a,b],[b,c],[a,d],[c,d]],[[{a,1},{b,2},{c,1},{d,2}],[{a,1},{b,1},{c,2},{d,1}]],[],2}) end).
 
-start(Name,G,T)-> Name = spawn(fun()-> funciones:server({G,[],[],T}) end).
+%start(Name,G,T)-> Name = spawn(fun()-> funciones:server({G,[],[],T}) end).
 
+%funciones:generarHilos(SERVIDOR, [[a,b],[b,c],[a,d],[c,d]],funciones:generar([[a,b],[b,c],[a,d],[c,d]],2,4),4,12).
+%SERVIDOR = spawn(fun()-> funciones:server({[[a,b],[b,c],[a,d],[c,d]],[],[],4}) end).
 
 server({G,L,S,T}) ->
   receive
     {G,L1,S,T} -> server({G,L++L1,S,T});
     list -> print(L), server({G,L,S,T});
     limp -> server({G,[],S,T});
-    sol -> S;
-    cam_sol -> New_sol = solu(S,lists:nth(1,funciones:seleccionar(funciones:valorar(G,L,[]),T),[])),server({G,L,New_sol,T});
-    poblacion -> print(funciones:quitar_v(funciones:seleccionar(funciones:valorar(G,L,[]),T),[])),server({G,[],S,T});
+    sol -> print(S);
+    cam_sol -> New_sol = solu(S,lists:nth(1,funciones:seleccionar(funciones:valorar(G,L,[]),T))),server({G,L,New_sol,T});
+    poblacion -> print(NL=funciones:quitar_v(funciones:seleccionar(funciones:valorar(G,L,[]),T),[])),server({G,NL,S,T});
     kill -> io:format("Servidor finalizado,Mejor solucion = ~p ~n",[S])
   end.
 %%%%%%%%%%%%%%%%%%%%%%%%
 %Genera los hilos y los envia al servidor
 %Server=Nombre del servidor  G=Grafo  T=Tamano de poblacion  H=Cantidad de hilos
 % L = Poblacion Inicial, 200 = Generaciones,
+generarHilos(Server,G,L,T,1) -> spawn(fun() -> Server ! {G, algGenetico(L, 200, []), [],T} end);
 generarHilos(Server,G,L,T,H) -> spawn(fun() -> Server ! {G, algGenetico(L, 200, []), [],T} end),
   generarHilos(Server,G,L,T,H-1).
 
