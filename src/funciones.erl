@@ -100,7 +100,7 @@ print(K)->io:format("La lista es ~p~n",[K]).
 
 server({G,L,S,T}) ->
   receive
-    {G,L1,S} -> server({G,L++[L1],S,T});
+    {G,L1,S,T} -> server({G,L++L1,S,T});
     list -> print(L), server({G,L,S,T});
     limp -> server({G,[],S,T});
     poblacion -> print(funciones:quitar_v(funciones:seleccionar(funciones:valorar(G,L,[]),T),[])),server({G,[],S,T});
@@ -109,8 +109,8 @@ server({G,L,S,T}) ->
 %%%%%%%%%%%%%%%%%%%%%%%%
 %Genera los hilos y los envia al servidor
 %Server=Nombre del servidor  G=Grafo  C=Cantidad de colores  T=Tamano de poblacion  H=Cantidad de hilos
-generarHilos(Server,G,C,T,1) -> spawn(fun() -> Server ! generar(G, C, T) end);
-generarHilos(Server,G,C,T,H) -> spawn(fun() -> Server ! generar(G, C, T) end),
+generarHilos(Server,G,C,T,1) -> spawn(fun() -> Server ! {G, generar(G, C, T), [], 2} end);
+generarHilos(Server,G,C,T,H) -> spawn(fun() -> Server ! {G, generar(G, C, T), [], 2} end),
   generarHilos(Server,G,C,T,H-1).
 
 %Verifica si la solucion tiene cero colisiones
