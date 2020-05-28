@@ -1,12 +1,18 @@
 %%%-------------------------------------------------------------------
+%%% Tecnologico de Costa Rica
+%%% Lenguajes de Programacion
+%%% Autores:
+%%%        Alejandro Alfaro Vargas
+%%%        Dylan Gonzalez Quesada
+%%%        Jose Daniel Penaranda Umana
+%%%
+%%% Proyecto 1: Colorear Grafo
+%%%-------------------------------------------------------------------
 -module(funciones).
-
-
-%% API
 -export([progra/2, generar/3, valorar/3, seleccionar/2, mutar/1, quitar_v/2, server/1, generarHilos/5, cruzar/2,
-  mejor_s/1, print/1, algGenetico/3, solu/2, consultaP/1, consultaS/1, start/2, iniciarJuego/2]).
+  mejor_s/1, print/1, algGenetico/3, solu/2, consultaP/1, consultaS/1, start/2, progra1/2]).
 
-%([[a,b],[b,c],[a,d],[c,d]],2,10).
+
 %Funcion que recibe un grafo y cantidad de colores y devuelve una lista con tuplas de nodo y color
 %G = Grafo, N = Cantidad de colores
 progra([],_N) -> 0;
@@ -70,14 +76,17 @@ cruzar([],[])->[];
 cruzar([[]],[[]])->[];
 cruzar([H1|T1],[H2|T2])->[lists:nth(rand:uniform(2), [H1] ++ [H2])] ++ cruzar(T1,T2).
 
+%Funcion que recibe una lista que contiene una poblcaion inicial, cruzar (y muta en %5)los elementos de lista,
+% entre ellos para generar unas generaciones de la poblacion
+% L = lista con la poblacion inicial, Cont = Numero de repeticiones(Generaciones), A = la lista con la nueva Poblacion
 algGenetico([],_Cont,A)-> A;
 algGenetico(_L, 0, A)-> A;
 algGenetico(L, Cont, A)-> algGenetico(L,Cont-1,A ++ algGenetico1(L, rand:uniform(100))).
-
+%Funcion auxiliar de algGenetico
 algGenetico1(L, R) when R =< 5 -> [mutar(cruzar(lists:nth(rand:uniform(length(L)), L),
-                                              lists:nth(rand:uniform(length(L)), L)))];
+  lists:nth(rand:uniform(length(L)), L)))];
 algGenetico1(L, R) when R > 5 -> [cruzar(lists:nth(rand:uniform(length(L)), L),
-                                              lists:nth(rand:uniform(length(L)), L))].
+  lists:nth(rand:uniform(length(L)), L))].
 
 %Funcion que me devuelve la posicion de un elemento en una lista
 % E = elemento, [E|_T] = Lista
@@ -95,70 +104,70 @@ inter_c(L,Index,N_Valor) ->
 quitar_v([],L)-> L;
 quitar_v([{H1,_H2}|T],L) -> quitar_v(T,L++[H1]).
 
+%Funcion en evalua dos soluciones, y elije la mejor
+%{N1,V1} = Solucion 1, {N2,V2} = Solucion 2.
 solu([],{N2,V2})-> {N2,V2};
 solu({N1,V1},{_N2,V2})when V1 =< V2 -> {N1,V1};
 solu({_N1,V1},{N2,V2})when V1 > V2 -> {N2,V2}.
 
-print(K)->io:format("La lista es ~p~n",[K]).
+%Funcion para mostrar la repeticion del programa
+print(K)->io:format("Repeticion ~p~n",[K]).
 
-%funciones:generarHilos(SERVIDOR, [[a,b],[b,c],[a,d],[c,d]],funciones:generar([[a,b],[b,c],[a,d],[c,d]],2,4),4,12).
-%SERVIDOR = spawn(fun()-> funciones:server({[[a,b],[b,c],[a,d],[c,d]],[],[],4}) end).
-
+%Servidor del programa: Se encarga de unificar las poblaciones, valora y selecciona las T mejores soluciones
+%G = Grafo, L = Lista con las poblaciones, S = Mejor soluciones, T = tamanio de la poblacion inicial
 server({G,L,S,T}) ->
   receive
     {G,L1,S,T} -> server({G,L++L1,S,T});
-    list -> print(L), server({G,L,S,T});
-    {limp, Server} -> Server ! 0, server({G,[],S,T});
     {sol, Server} -> Server ! New_sol = solu(S,lists:nth(1,funciones:seleccionar(funciones:valorar(G,L,[]),T))),server({G,L,New_sol,T});
-    {poblacion,Server} -> Server ! funciones:quitar_v(funciones:seleccionar(funciones:valorar(G,L,[]),T),[]), server({G,L,S,T});
-    kill -> io:format("Servidor finalizado,Mejor solucion = ~p ~n",[S])
+    {poblacion,Server} -> Server ! funciones:quitar_v(funciones:seleccionar(funciones:valorar(G,L,[]),T),[]), server({G,L,S,T})
   end.
-%%%%%%%%%%%%%%%%%%%%%%%%
+%-------------------------------------------------------------------------------------------------------------------------------------%
 %Genera los hilos y los envia al servidor
 %Server=Nombre del servidor  G=Grafo  T=Tamano de poblacion  H=Cantidad de hilos
 % L = Poblacion Inicial, 200 = Generaciones,
+
 generarHilos(Server,G,L,T,1) -> spawn(fun() -> Server ! {G, algGenetico(L, 200, []), [],T} end);
 generarHilos(Server,G,L,T,H) -> spawn(fun() -> Server ! {G, algGenetico(L, 200, []), [],T} end),
   generarHilos(Server,G,L,T,H-1).
 
+%Funcion que consulta al servidor por la lista con la mejor Poblacion
+%Server = Nombre del server.
 consultaP(Server)-> Server ! {poblacion, self()},
   receive
     R -> R
   end.
 
+%Funcion que consulta al servidor por la lista con la mejor solucion
+%Server = Nombre del server.
 consultaS(Server)-> Server ! {sol, self()},
   receive
     S -> S
   end.
 
-limpiaP(Server)-> Server ! {limp, self()},
-  receive
-    R -> R
-  end.
 
 %Verifica si la solucion tiene cero colisiones
-mejor_s({_S,V}) when V == 0 -> true.
+mejor_s({_S,V}) when V == 0 -> true;
+mejor_s({_S,V}) when V /= 0 -> false.
 
 %Inicia el servidor con el grafo y la cantidad de soluciones
 %G = Grafo   T=Cantiadd de solucioes
 start(G,T)-> spawn(fun()-> funciones:server({G,[],[],T}) end).
 
-iniciarJuego(G,C) -> T = (length(G) * 2), iniciarJuegoAux(G,C,T).
+%Funcion que inicializa el programa
+%G = Grafo, C = cantidad de colores
+progra1(G,C) -> T = (length(G) * 2), progra1Aux(G,C,T).
+%Funcion auxiliar de progra1
+progra1Aux(G,C,T)-> Servidor=start(G,T),ciclo(G, generar(G,C,T),[], T, 0, false,Servidor).
 
-
-iniciarJuegoAux(G,C,T)-> Servidor=start(G,T). %%ciclo(G, generar(G,C,T),[], T, 10000, false,Servidor).
-
-%funciones:generarHilos(SERVIDOR, [[a,b],[b,c],[a,d],[c,d]],funciones:generar([[a,b],[b,c],[a,d],[c,d]],2,4),4,12).
-%G = Grafo, P = Poblacion, S = mejor Solucion, T = tama;o de Poblacion_I
+%Funcion que se encarga de controlar el ciclo del programa
+%G = Grafo, P = Poblacion, S = mejor Solucion, T = tamanio de Poblacion inicial
 %R = 10000 de Repeticiones, B = bandera de Mejor solucion
-ciclo(_G,_P,S,_T,R,_B,_Ser)when R == 0 -> S;
-ciclo(_G,_P,S,_T,_R,B,_Ser)when B == true -> S;
-ciclo(G,P,S,T,R,B,Ser)-> generarHilos(Ser, G, P, T, 12).%% ciclo(G,consultaP(Ser),S,T,R-1,B,Ser).
+ciclo(_G,_P,S,_T,R,_B,Ser)when R == 10000 -> S;
+ciclo(_G,_P,S,_T,_R,B,Ser)when B == true -> S;
+ciclo(G,P,_S,T,R,_B,Ser) -> generarHilos(Ser, G, P, T, 12),print(R),NP = funciones:consultaP(Ser),NS =funciones:consultaS(Ser),
+  NB =funciones:mejor_s(NS),ciclo(G,NP,NS,T,R+1,NB,Ser).
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%Grafo = [[a,b],[b,c],[a,d],[c,d]]
-%Lista = [{a,2},{b,2},{c,3},{d,4},{a,4},{b,3},{c,3},{d,3},{a,2}]
-%SERVIDOR = spawn(fun()-> funciones:server({[[a,b],[b,c],[a,d],[c,d]],[[{a,1},{b,2},{c,1},{d,2}],[{a,1},{b,1},{c,2},{d,1}]],[],2}) end).
-%funciones:generarHilos(SERVIDOR, [[a,b],[b,c],[a,d],[c,d]], 4, 9, 3).
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%funciones:progra1([[a,b],[b,c],[a,d],[c,d]],2).
+
+%funciones:progra1([[a,b],[b,e],[e,g],[g,c],[c,a],[c,d],[d,f],[f,h]],2).
