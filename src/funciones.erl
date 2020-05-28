@@ -4,7 +4,7 @@
 
 %% API
 -export([progra/2, generar/3, valorar/3, seleccionar/2, mutar/1, quitar_v/2, server/1, generarHilos/5, cruzar/2,
-  mejor_s/1, print/1, algGenetico/3, solu/2, consultaP/1, consultaS/1, start/2]).
+  mejor_s/1, print/1, algGenetico/3, solu/2, consultaP/1, consultaS/1, start/2, iniciarJuego/2]).
 
 %([[a,b],[b,c],[a,d],[c,d]],2,10).
 %Funcion que recibe un grafo y cantidad de colores y devuelve una lista con tuplas de nodo y color
@@ -21,7 +21,7 @@ eliminaRep(L) -> lists:usort(lists:flatten(L)).
 
 %Funcion que recibe un grafo, la cantidad de colores y un tamano de la poblacion
 %G=Grafo [[a,b],[a,b],[a,b]], C=Cantidad de colores T= Tamano de la poblacion L=lista de tuplas [{a,1},{b,2},{d,3}]
-generar([],_C,_T)->[];
+generar([],_C, _T)->[];
 generar(_G,_C,0)->[];
 generar(G,C,T)->L=progra(G,C), generaAux(G,C,T,L).
 
@@ -101,9 +101,6 @@ solu({_N1,V1},{N2,V2})when V1 > V2 -> {N2,V2}.
 
 print(K)->io:format("La lista es ~p~n",[K]).
 
-
-start(G,T)-> spawn(fun()-> funciones:server({G,[],[],T}) end).
-
 %funciones:generarHilos(SERVIDOR, [[a,b],[b,c],[a,d],[c,d]],funciones:generar([[a,b],[b,c],[a,d],[c,d]],2,4),4,12).
 %SERVIDOR = spawn(fun()-> funciones:server({[[a,b],[b,c],[a,d],[c,d]],[],[],4}) end).
 
@@ -111,11 +108,9 @@ server({G,L,S,T}) ->
   receive
     {G,L1,S,T} -> server({G,L++L1,S,T});
     list -> print(L), server({G,L,S,T});
-    limp -> server({G,[],S,T});
-    {sol, Server} -> Server ! S;
-    cam_sol -> New_sol = solu(S,lists:nth(1,funciones:seleccionar(funciones:valorar(G,L,[]),T))),server({G,L,New_sol,T});
-    {poblacion,Server} -> Server ! NL=funciones:quitar_v(funciones:seleccionar(funciones:valorar(G,L,[]),T),[]),
-                                                                                                    server({G,NL,S,T});
+    {limp, Server} -> Server ! 0, server({G,[],S,T});
+    {sol, Server} -> Server ! New_sol = solu(S,lists:nth(1,funciones:seleccionar(funciones:valorar(G,L,[]),T))),server({G,L,New_sol,T});
+    {poblacion,Server} -> Server ! funciones:quitar_v(funciones:seleccionar(funciones:valorar(G,L,[]),T),[]), server({G,L,S,T});
     kill -> io:format("Servidor finalizado,Mejor solucion = ~p ~n",[S])
   end.
 %%%%%%%%%%%%%%%%%%%%%%%%
@@ -136,17 +131,30 @@ consultaS(Server)-> Server ! {sol, self()},
     S -> S
   end.
 
-
+limpiaP(Server)-> Server ! {limp, self()},
+  receive
+    R -> R
+  end.
 
 %Verifica si la solucion tiene cero colisiones
 mejor_s({_S,V}) when V == 0 -> true.
 
+%Inicia el servidor con el grafo y la cantidad de soluciones
+%G = Grafo   T=Cantiadd de solucioes
+start(G,T)-> spawn(fun()-> funciones:server({G,[],[],T}) end).
 
-%G = Grafo, P = Poblacion, S = mejor Solucion, T = # de Poblacion_I
+iniciarJuego(G,C) -> T = (length(G) * 2), iniciarJuegoAux(G,C,T).
+
+
+iniciarJuegoAux(G,C,T)-> Servidor=start(G,T). %%ciclo(G, generar(G,C,T),[], T, 10000, false,Servidor).
+
+%funciones:generarHilos(SERVIDOR, [[a,b],[b,c],[a,d],[c,d]],funciones:generar([[a,b],[b,c],[a,d],[c,d]],2,4),4,12).
+%G = Grafo, P = Poblacion, S = mejor Solucion, T = tama;o de Poblacion_I
 %R = 10000 de Repeticiones, B = bandera de Mejor solucion
+ciclo(_G,_P,S,_T,R,_B,_Ser)when R == 0 -> S;
+ciclo(_G,_P,S,_T,_R,B,_Ser)when B == true -> S;
+ciclo(G,P,S,T,R,B,Ser)-> generarHilos(Ser, G, P, T, 12).%% ciclo(G,consultaP(Ser),S,T,R-1,B,Ser).
 
-%prin(G,P,S,T,R,B)when R == 0 -> S;
-%prin(G,P,S,T,R,B)when B == true -> S.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Grafo = [[a,b],[b,c],[a,d],[c,d]]
