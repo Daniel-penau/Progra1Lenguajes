@@ -8,7 +8,7 @@
 %%%
 %%% Proyecto 1: Colorear Grafo
 %%%-------------------------------------------------------------------
--module(funciones).
+-module(alejandrodylandaniel).
 -export([progra/2, generar/3, valorar/3, seleccionar/2, mutar/1, quitar_v/2, server/1, generarHilos/5, cruzar/2,
   mejor_s/1, print/1, algGenetico/3, solu/2, consultaP/1, consultaS/1, start/2, progra1/2]).
 
@@ -118,8 +118,8 @@ print(K)->io:format("Repeticion ~p~n",[K]).
 server({G,L,S,T}) ->
   receive
     {G,L1,S,T} -> server({G,L++L1,S,T});
-    {sol, Server} -> Server ! New_sol = solu(S,lists:nth(1,funciones:seleccionar(funciones:valorar(G,L,[]),T))),server({G,L,New_sol,T});
-    {poblacion,Server} -> Server ! funciones:quitar_v(funciones:seleccionar(funciones:valorar(G,L,[]),T),[]), server({G,L,S,T})
+    {sol, Server} -> Server ! New_sol = solu(S,lists:nth(1, alejandrodylandaniel:seleccionar(alejandrodylandaniel:valorar(G,L,[]),T))),server({G,L,New_sol,T});
+    {poblacion,Server} -> Server ! alejandrodylandaniel:quitar_v(alejandrodylandaniel:seleccionar(alejandrodylandaniel:valorar(G,L,[]),T),[]), server({G,L,S,T})
   end.
 %-------------------------------------------------------------------------------------------------------------------------------------%
 %Genera los hilos y los envia al servidor
@@ -151,7 +151,7 @@ mejor_s({_S,V}) when V /= 0 -> false.
 
 %Inicia el servidor con el grafo y la cantidad de soluciones
 %G = Grafo   T=Cantiadd de solucioes
-start(G,T)-> spawn(fun()-> funciones:server({G,[],[],T}) end).
+start(G,T)-> spawn(fun()-> alejandrodylandaniel:server({G,[],[],T}) end).
 
 %Funcion que inicializa el programa
 %G = Grafo, C = cantidad de colores
@@ -162,12 +162,16 @@ progra1Aux(G,C,T)-> Servidor=start(G,T),ciclo(G, generar(G,C,T),[], T, 0, false,
 %Funcion que se encarga de controlar el ciclo del programa
 %G = Grafo, P = Poblacion, S = mejor Solucion, T = tamanio de Poblacion inicial
 %R = 10000 de Repeticiones, B = bandera de Mejor solucion
-ciclo(_G,_P,S,_T,R,_B,Ser)when R == 10000 -> S;
-ciclo(_G,_P,S,_T,_R,B,Ser)when B == true -> S;
-ciclo(G,P,_S,T,R,_B,Ser) -> generarHilos(Ser, G, P, T, 12),print(R),NP = funciones:consultaP(Ser),NS =funciones:consultaS(Ser),
-  NB =funciones:mejor_s(NS),ciclo(G,NP,NS,T,R+1,NB,Ser).
+ciclo(_G,_P,S,_T,R,_B,_Ser)when R == 10000 -> S;
+ciclo(_G,_P,S,_T,_R,B,_Ser)when B == true -> S;
+ciclo(G,P,_S,T,R,_B,Ser) -> generarHilos(Ser, G, P, T, 12),print(R),NP = alejandrodylandaniel:consultaP(Ser),NS = alejandrodylandaniel:consultaS(Ser),
+  NB = alejandrodylandaniel:mejor_s(NS),ciclo(G,NP,NS,T,R+1,NB,Ser).
 
 
 %funciones:progra1([[a,b],[b,c],[a,d],[c,d]],2).
 
 %funciones:progra1([[a,b],[b,e],[e,g],[g,c],[c,a],[c,d],[d,f],[f,h]],2).
+%funciones:progra1([[a,b],[a,e],[b,c],[b,d],[e,f],[e,g]],2).
+%funciones:progra1([[h,a],[a,d],[a,e],[d,i],[e,i],[e,d],[a,c],[a,b],[b,g],[c,f],[f,g],[a,g],[a,f]],4).
+%funciones:progra1([[a,b],[b,a],[b,c],[c,b],[a,d],[b,d],[c,d]],2).
+%funciones:progra1([[a,b],[a,c],[a,d],[b,c],[c,d],[b,e],[c,f],[d,g],[e,f],[f,g],[e,h],[f,i],[g,i],[h,i],[i,j],[h,j]],2).

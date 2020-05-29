@@ -4,7 +4,7 @@
     <list default="true" id="b45daf76-0f83-4f90-bd83-56a2a8e0aaca" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/funciones.beam" beforeDir="false" afterPath="$PROJECT_DIR$/src/funciones.beam" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/funciones.erl" beforeDir="false" afterPath="$PROJECT_DIR$/src/funciones.erl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/funciones.erl" beforeDir="false" afterPath="$PROJECT_DIR$/src/alejandrodylandaniel.erl" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -54,7 +54,8 @@
       <workItem from="1590427073512" duration="1587000" />
       <workItem from="1590447372815" duration="1900000" />
       <workItem from="1590533499921" duration="5233000" />
-      <workItem from="1590621569009" duration="7697000" />
+      <workItem from="1590621569009" duration="15712000" />
+      <workItem from="1590717061218" duration="638000" />
     </task>
     <servers />
   </component>
@@ -84,9 +85,10 @@
       <screen x="0" y="0" width="1280" height="720" />
     </state>
     <state x="421" y="116" key="FileChooserDialogImpl/0.0.1280.720@0.0.1280.720" timestamp="1590456060189" />
-    <state x="337" y="185" key="com.intellij.ide.util.TipDialog" timestamp="1590447373403">
+    <state x="337" y="185" key="com.intellij.ide.util.TipDialog" timestamp="1590717493639">
       <screen x="0" y="0" width="1280" height="720" />
     </state>
     <state x="337" y="185" key="com.intellij.ide.util.TipDialog/0.0.1280.720/0.-1080.1536.864@0.0.1280.720" timestamp="1590447373403" />
+    <state x="337" y="185" key="com.intellij.ide.util.TipDialog/0.0.1280.720@0.0.1280.720" timestamp="1590717493639" />
   </component>
 </project>
